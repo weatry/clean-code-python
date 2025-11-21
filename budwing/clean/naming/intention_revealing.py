@@ -36,6 +36,10 @@ class IntentionRevealing:
         The status of a cell is encapsulated within the Cell class.
         By using the isFlagged() method, we make the code more intention-revealing.
         """
+        status: int
+        x: int
+        y: int
+        bomb: bool
 
         def __init__(self, status: int = 0) -> None:
             self.status = status
