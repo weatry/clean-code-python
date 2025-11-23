@@ -1,0 +1,48 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+root = true
+
+# global default setting（applicable for all files）
+[*]
+charset = utf-8
+end_of_line = lf # lf means line feed (Unix style, \n), crlf means carriage return + line feed (Windows style, \r\n)
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# indentation：4 space for default（can be overridden per language）
+indent_style = space
+indent_size = 4
+
+# language of 2 space indentation（such as JavaScript, TypeScript, JSON, YAML）
+[*.{js,ts,jsx,tsx,json,yml,yaml}]
+indent_size = 2
+
+# Python：PEP 8 requires 4 spaces
+[*.py]
+indent_size = 4
+
+# Go：officially requires tab indentation (gofmt uses tab)
+[*.go]
+indent_style = tab
+# Note: The Go community uses tabs, but the tab display width is usually set to 8 (controlled by the editor, .editorconfig does not specify tab_width)
+
+# Java / C / C++ / C#：usually 4 spaces
+[*.{java,c,cpp,h,hpp,cs}]
+indent_size = 4
+
+# Makefile must use tab (syntax requirement!)
+[Makefile]
+indent_style = tab
+
+# Shell scripts: usually 2 or 4 spaces, here use 2 (common convention)
+[*.sh]
+indent_size = 2
+
+# Markdown / text files: no enforced indentation, but keep global settings
+[*.{md,txt}]
+trim_trailing_whitespace = false  # Markdown tables etc. may require trailing spaces
+insert_final_newline = true
+
+# Git commit message（~/.gitmessage）
+[COMMIT_EDITMSG]
+max_line_length = 72
