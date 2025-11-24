@@ -3,6 +3,10 @@ import random
 import threading
 import time
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class User:
     """
     A simple class to represent a user with a balance.
@@ -25,23 +29,23 @@ def transfer_try_lock(source: User, target: User, amount: float):
     while True:
         if source._lock.acquire(blocking=False):
             try:
-                print(f"{threading.current_thread().name}: got {source.name}'s lock")
+                logger.info(f"{threading.current_thread().name}: got {source.name}'s lock")
                 time.sleep(0.1)
                 if target._lock.acquire(blocking=False):
                     try:
-                        print(f"{threading.current_thread().name}: got {target.name}'s lock")
+                        logger.info(f"{threading.current_thread().name}: got {target.name}'s lock")
                         time.sleep(0.1)
-                        print(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
+                        logger.info(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
                         break
                     finally:
                         target._lock.release()
                 else:
-                    print(f"{threading.current_thread().name}: failed to get {target.name}'s lock")
+                    logger.info(f"{threading.current_thread().name}: failed to get {target.name}'s lock")
             finally:
                 source._lock.release()
-                print(f"{threading.current_thread().name}: released {source.name}'s lock")
+                logger.info(f"{threading.current_thread().name}: released {source.name}'s lock")
         else:
-            print(f"{threading.current_thread().name}: failed to get {source.name}'s lock")
+            logger.info(f"{threading.current_thread().name}: failed to get {source.name}'s lock")
         
         time.sleep(random.uniform(0.001, 1))
 
@@ -52,23 +56,23 @@ def transfer_lock_timeout(source: User, target: User, amount: float):
     while True:
         if source._lock.acquire(timeout=0.1):
             try:
-                print(f"{threading.current_thread().name}: got {source.name}'s lock")
+                logger.info(f"{threading.current_thread().name}: got {source.name}'s lock")
                 time.sleep(0.1)
                 if target._lock.acquire(timeout=0.1):
                     try:
-                        print(f"{threading.current_thread().name}: got {target.name}'s lock")
+                        logger.info(f"{threading.current_thread().name}: got {target.name}'s lock")
                         time.sleep(0.1)
-                        print(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
+                        logger.info(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
                         break
                     finally:
                         target._lock.release()
                 else:
-                    print(f"{threading.current_thread().name}: failed to get {target.name}'s lock")
+                    logger.info(f"{threading.current_thread().name}: failed to get {target.name}'s lock")
             finally:
                 source._lock.release()
-                print(f"{threading.current_thread().name}: released {source.name}'s lock")
+                logger.info(f"{threading.current_thread().name}: released {source.name}'s lock")
         else:
-            print(f"{threading.current_thread().name}: failed to get {source.name}'s lock")
+            logger.info(f"{threading.current_thread().name}: failed to get {source.name}'s lock")
         
         time.sleep(random.uniform(0.001, 1))
 
@@ -79,12 +83,12 @@ def transfer_fix_order(source: User, target: User, amount: float):
     if source.name > target.name:  # fix the order of locks
         source, target = target, source
     with source._lock:
-        print(f"{threading.current_thread().name}: got {source.name}'s lock")
+        logger.info(f"{threading.current_thread().name}: got {source.name}'s lock")
         time.sleep(0.1)
         with target._lock:
-            print(f"{threading.current_thread().name}: got {target.name}'s lock")
+            logger.info(f"{threading.current_thread().name}: got {target.name}'s lock")
             time.sleep(0.1)
-            print(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
+            logger.info(f"{threading.current_thread().name}: transferred {amount} from {source.name} to {target.name}")
        
 def deadlock_example():
     alice = User("Alice", 100)
@@ -103,11 +107,11 @@ async def save(user: User):
     """
     Never use threading lock in asyncio coroutine
     """
-    print(f"{user.name}: trying to acquire lock")
+    logger.info(f"{user.name}: trying to acquire lock")
     async with user._async_lock:  # it's a asyncio lock, will yield control to other tasks
-        print(f"{user.name}: got lock, saving...")
+        logger.info(f"{user.name}: got lock, saving...")
         await asyncio.sleep(1)  # yield control to other tasks, but not the lock
-        print(f"{user.name}: releasing lock")
+        logger.info(f"{user.name}: releasing lock")
 
 async def deadlock_like_example():
     # start two coroutine
@@ -115,5 +119,9 @@ async def deadlock_like_example():
     await asyncio.gather(save(alice), save(alice))
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO, 
+        format="%(asctime)s %(filename)s %(levelname)s:%(message)s"
+    )
     # deadlock_example()
     asyncio.run(deadlock_like_example())

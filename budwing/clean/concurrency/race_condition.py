@@ -2,6 +2,10 @@ import asyncio
 import threading
 import time
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 class Counter:
     """
     Counter class to demonstrate concurrent access to shared data.
@@ -110,10 +114,10 @@ class RaceCondition:
                 time.sleep(0.1)
                 
                 user.set_balance(user.get_balance() - amount)
-                print(f"{threading.current_thread().name} withdraw {amount} successfully, "
+                logger.info(f"{threading.current_thread().name} withdraw {amount} successfully, "
                     f"balance: {user.get_balance()}")
             else:
-                print(f"{threading.current_thread().name} withdraw failed, insufficient funds. "
+                logger.info(f"{threading.current_thread().name} withdraw failed, insufficient funds. "
                     f"Balance: {user.get_balance()}, Attempt: {amount}")
             
     async def withdraw_async(self, user: User, amount):
@@ -154,7 +158,11 @@ def main():
     for t in threads:
         t.join()
     
-    print(f"Final balance: {alice.get_balance()}")
+    logger.info(f"Final balance: {alice.get_balance()}")
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO, 
+        format="%(asctime)s %(filename)s %(levelname)s:%(message)s"
+    )
     main()
